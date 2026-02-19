@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Spin Game</title>
+
+<style>
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: repeating-linear-gradient(
+        90deg,
+        #8b5a2b 0px,
+        #8b5a2b 40px,
+        #7a4d24 40px,
+        #7a4d24 80px
+    );
+    font-family:Arial, sans-serif;
+    overflow:hidden;
+}
+
+#spinner{
+    width:200px;
+    height:200px;
+    position:relative;
+    cursor:pointer;
+}
+
+.arrow{
+    width:8px;
+    height:100px;
+    background:black;
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform-origin:bottom center;
+    transform:translateX(-50%) rotate(0deg);
+    border-radius:5px;
+}
+
+.tip{
+    width:0;
+    height:0;
+    border-left:15px solid transparent;
+    border-right:15px solid transparent;
+    border-bottom:25px solid black;
+    position:absolute;
+    left:50%;
+    top:calc(50% - 120px);
+    transform:translateX(-50%);
+}
+
+#text{
+    position:absolute;
+    bottom:20px;
+    font-size:22px;
+    color:white;
+    text-shadow:2px 2px 5px black;
+}
+</style>
+</head>
+
+<body>
+
+<div id="spinner" onclick="spin()">
+    <div class="arrow" id="arrow"></div>
+    <div class="tip"></div>
+</div>
+
+<div id="text">Click to Spin</div>
+
+<script>
+let spinning = false;
+
+function spin(){
+    if(spinning) return;
+
+    spinning = true;
+
+    const arrow = document.getElementById("arrow");
+    const text = document.getElementById("text");
+
+    let randomDeg = Math.floor(Math.random() * 360) + 1440; // extra spins
+    arrow.style.transition = "transform 2.5s cubic-bezier(.17,.67,.12,.99)";
+    arrow.style.transform = "translateX(-50%) rotate(" + randomDeg + "deg)";
+
+    text.innerText = "Spinning...";
+
+    setTimeout(()=>{
+        text.innerText = "Click to Spin Again";
+        spinning = false;
+    },2500);
+}
+</script>
+
+</body>
+  </html>
