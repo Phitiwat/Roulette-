@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Spin Game</title>
+<title>Ultra Spin</title>
 
 <style>
 body{
@@ -11,90 +11,114 @@ body{
     display:flex;
     justify-content:center;
     align-items:center;
-    background: repeating-linear-gradient(
+    background:
+    repeating-linear-gradient(
         90deg,
         #8b5a2b 0px,
-        #8b5a2b 40px,
-        #7a4d24 40px,
-        #7a4d24 80px
+        #8b5a2b 70px,
+        #7a4d24 70px,
+        #7a4d24 140px
     );
-    font-family:Arial, sans-serif;
     overflow:hidden;
-}
-
-#spinner{
-    width:200px;
-    height:200px;
-    position:relative;
     cursor:pointer;
+    font-family:Arial, sans-serif;
 }
 
-.arrow{
-    width:8px;
-    height:100px;
-    background:black;
-    position:absolute;
-    left:50%;
-    top:50%;
-    transform-origin:bottom center;
-    transform:translateX(-50%) rotate(0deg);
-    border-radius:5px;
+/* subtle lighting overlay */
+body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:radial-gradient(circle at center,
+        rgba(255,255,255,0.15),
+        rgba(0,0,0,0.5));
+    pointer-events:none;
 }
 
-.tip{
-    width:0;
-    height:0;
-    border-left:15px solid transparent;
-    border-right:15px solid transparent;
-    border-bottom:25px solid black;
-    position:absolute;
-    left:50%;
-    top:calc(50% - 120px);
-    transform:translateX(-50%);
+#game{
+    position:relative;
+    text-align:center;
+}
+
+#arrow{
+    width:450px;
+    max-width:90vw;
+    transform-origin:center center;
+    transition:transform 4s cubic-bezier(.1,.9,.2,1);
+    filter:drop-shadow(0 10px 20px rgba(0,0,0,0.6));
+}
+
+.blur{
+    filter:blur(4px) drop-shadow(0 10px 20px rgba(0,0,0,0.6));
 }
 
 #text{
-    position:absolute;
-    bottom:20px;
+    margin-top:40px;
     font-size:22px;
     color:white;
-    text-shadow:2px 2px 5px black;
+    text-shadow:2px 2px 8px black;
+    letter-spacing:2px;
 }
 </style>
 </head>
 
-<body>
+<body onclick="spin()">
 
-<div id="spinner" onclick="spin()">
-    <div class="arrow" id="arrow"></div>
-    <div class="tip"></div>
+<div id="game">
+    <img src="arrow.png" id="arrow">
+    <div id="text">CLICK ANYWHERE TO SPIN</div>
 </div>
 
-<div id="text">Click to Spin</div>
-
 <script>
+
+const arrow = document.getElementById("arrow");
+const text = document.getElementById("text");
+
 let spinning = false;
+let rotation = 0;
+
+function spinSound(){
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(500, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.4);
+
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.4);
+}
 
 function spin(){
-    if(spinning) return;
 
+    if(spinning) return;
     spinning = true;
 
-    const arrow = document.getElementById("arrow");
-    const text = document.getElementById("text");
+    text.innerText = "SPINNING...";
+    arrow.classList.add("blur");
 
-    let randomDeg = Math.floor(Math.random() * 360) + 1440; // extra spins
-    arrow.style.transition = "transform 2.5s cubic-bezier(.17,.67,.12,.99)";
-    arrow.style.transform = "translateX(-50%) rotate(" + randomDeg + "deg)";
+    spinSound();
 
-    text.innerText = "Spinning...";
+    let extraSpin = 360 * 6 + Math.floor(Math.random()*360);
+    rotation += extraSpin;
+
+    arrow.style.transform = `rotate(${rotation}deg)`;
 
     setTimeout(()=>{
-        text.innerText = "Click to Spin Again";
+        arrow.classList.remove("blur");
+        text.innerText = "CLICK TO SPIN AGAIN";
         spinning = false;
-    },2500);
+    },4000);
 }
+
 </script>
 
 </body>
-  </html>
+</html>
